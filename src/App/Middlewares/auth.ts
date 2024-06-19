@@ -12,12 +12,17 @@ export const Auth = (...requiredRoles: TRequiredRoles[]) => {
   return catchAsync(async (req, res, next) => {
     const token = req.cookies.accessToken;
 
+  
+
     if (!token) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
         'You have no access to this route',
       );
     }
+
+
+
 
     const decode = jwt.verify(token, configs.jwt_access_secret) as JwtPayload;
 
@@ -32,6 +37,8 @@ export const Auth = (...requiredRoles: TRequiredRoles[]) => {
         'You have no access to this route',
       );
     }
+
+     req.user = decode as JwtPayload;
 
     next()
   });
