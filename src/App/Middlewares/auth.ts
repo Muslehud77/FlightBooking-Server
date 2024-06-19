@@ -8,9 +8,9 @@ import { TRequiredRoles } from "../Modules/Auth/auth.interface";
 import { TUserResponse } from "../Modules/User/user.interface";
 
 
-const Auth = (...requiredRoles: TRequiredRoles[]) => {
+export const Auth = (...requiredRoles: TRequiredRoles[]) => {
   return catchAsync(async (req, res, next) => {
-    const token = req.headers.authorization;
+    const token = req.cookies.accessToken;
 
     if (!token) {
       throw new AppError(

@@ -29,6 +29,10 @@ const userSignIn = catchAsync(async (req, res) => {
     secure: configs.node_env === "production",
     httpOnly: true
    })
+   res.cookie('accessToken', accessToken, {
+     secure: configs.node_env === 'production',
+     httpOnly: true,
+   });
 
 
   const data = {
@@ -46,8 +50,12 @@ const refreshToken = catchAsync(async (req, res) => {
 
   const {refreshToken} = req.cookies
 
-   const result = await authServices.refreshToken(refreshToken)
+   const result = await authServices.refreshToken(refreshToken) as unknown as {token:string}
 
+    res.cookie('accessToken', result, {
+      secure: configs.node_env === 'production',
+      httpOnly: true,
+    });
 
   const data = {
     success: true,
@@ -55,7 +63,7 @@ const refreshToken = catchAsync(async (req, res) => {
     message: 'Token updated successfully',
     token : result
   };
-  sendResponse(res, data);
+  sendResponse<{token: string}>(res, data);
 });
 
 

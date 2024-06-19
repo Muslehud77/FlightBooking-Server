@@ -9,6 +9,7 @@ const router = express.Router();
 router.post('/signup',validateRequest(userValidation.createUserValidation),authController.createUser);
 router.post('/signin',validateRequest(authValidation.UserSignInValidation),authController.userSignIn);
 router.post('/refreshToken',authController.refreshToken);
+router.post('/logout',authController.refreshToken);
 
 
 
