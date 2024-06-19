@@ -13,6 +13,7 @@ export class QueryBuilder<T> {
 
   search(searchableFields: string[]) {
     const { searchTerm } = this?.query;
+    
     if (searchTerm) {
       this.modelQuery = this.modelQuery.find({
         $or: searchableFields.map(
@@ -23,14 +24,13 @@ export class QueryBuilder<T> {
         ),
       });
     }
+
     return this;
   }
 
   filter() {
     const { searchTerm, sort, limit, page, fields, ...queryObject } =
       this?.query;
-
-  
 
     this.modelQuery = this.modelQuery.find(queryObject as FilterQuery<T>);
 
