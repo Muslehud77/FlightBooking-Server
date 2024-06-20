@@ -7,7 +7,7 @@ const createBookingIntoDB = async (bookingData:TBooking)=>{
 }
 
 const deleteBookingFromDB = async(id:string)=>{
-    const result = await Booking.findByIdAndDelete({_id:id})
+    const result = await Booking.findOneAndDelete({flight:id})
     return result
 }
 

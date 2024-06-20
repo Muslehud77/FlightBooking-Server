@@ -76,6 +76,10 @@ const userSignIn = catchAsync(async (req, res) => {
 
 const refreshToken = catchAsync(async (req, res) => {
   const { refreshToken } = req.cookies;
+  
+  if(!refreshToken){
+    throw new AppError(httpStatus.UNAUTHORIZED,"You are not authorized")
+  }
 
   const result = (await authServices.refreshToken(refreshToken)) as unknown as {
     token: string;
@@ -101,8 +105,7 @@ const refreshToken = catchAsync(async (req, res) => {
 const logOut = catchAsync(async (req, res) => {
   const { refreshToken, accessToken } = req.cookies;
 
-  res.clearCookie('accessToken').clearCookie('refreshToken');
-
+  
   const data = {
     success: true,
     statusCode: 200,
@@ -110,11 +113,19 @@ const logOut = catchAsync(async (req, res) => {
     data: { message: 'user logged out successfully' },
   };
 
-  res
-    .clearCookie('accessToken')
-    .clearCookie('refreshToken')
-    .status(200)
-    .json(data);
+   res.clearCookie('accessToken', {
+     httpOnly: true,
+     secure: configs.node_env === 'production' ? true : false,
+     sameSite: configs.node_env === 'production' ? 'none' : 'strict',
+   });
+  
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: configs.node_env === 'production' ? true : false,
+    sameSite: configs.node_env === 'production' ? 'none' : 'strict',
+  });
+
+    res.json(data);
 
   if (refreshToken || accessToken) {
     throw new AppError(httpStatus.FORBIDDEN, 'Could not logout the user!');
