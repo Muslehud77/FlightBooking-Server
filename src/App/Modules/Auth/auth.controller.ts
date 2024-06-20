@@ -9,16 +9,41 @@ import httpStatus from 'http-status';
 
 const createUser = catchAsync(async (req, res) => {
   const userData = req.body;
+ 
+  const result=
+    (await authServices.createUserIntoDB(userData)) as unknown as {
+      accessToken: string;
+      refreshToken: string;
+      user: TUserResponse;
+    };
 
-  const result = (await authServices.createUserIntoDB(
-    userData,
-  )) as unknown as TUserResponse;
+    const { user, refreshToken, accessToken } = result
+
+  //  res.cookie('refreshToken', refreshToken, {
+  //    secure: configs.node_env === 'production',
+  //    httpOnly: true,
+  //  });
+  //  res.cookie('accessToken', accessToken, {
+  //    secure: configs.node_env === 'production',
+  //    httpOnly: true,
+  //  });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: configs.node_env === 'production' ? true : false,
+      sameSite: configs.node_env === 'production' ? 'none' : 'strict',
+    });
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: configs.node_env === 'production' ? true : false,
+      sameSite: configs.node_env === 'production' ? 'none' : 'strict',
+    });
 
   const data = {
     success: true,
     statusCode: 201,
     message: 'User registered successfully',
-    data: result,
+    data: user,
   };
   sendResponse<TUserResponse>(res, data);
 });
@@ -29,15 +54,16 @@ const userSignIn = catchAsync(async (req, res) => {
   const { rest, accessToken, refreshToken } =
     await authServices.signIn(userData);
 
-  res.cookie('refreshToken', refreshToken, {
-    secure: configs.node_env === 'production',
-    httpOnly: true,
-  });
-  res.cookie('accessToken', accessToken, {
-    secure: configs.node_env === 'production',
-    httpOnly: true,
-  });
-
+   res.cookie('refreshToken', refreshToken, {
+     httpOnly: true,
+     secure: configs.node_env === 'production' ? true : false,
+     sameSite: configs.node_env === 'production' ? 'none' : 'strict',
+   });
+   res.cookie('accessToken', accessToken, {
+     httpOnly: true,
+     secure: configs.node_env === 'production' ? true : false,
+     sameSite: configs.node_env === 'production' ? 'none' : 'strict',
+   });
   const data = {
     success: true,
     statusCode: 200,
@@ -53,20 +79,23 @@ const refreshToken = catchAsync(async (req, res) => {
 
   const result = (await authServices.refreshToken(refreshToken)) as unknown as {
     token: string;
+    user: TUser;
   };
 
-  res.cookie('accessToken', result, {
-    secure: configs.node_env === 'production',
-    httpOnly: true,
-  });
+
+   res.cookie('accessToken', result.token, {
+     httpOnly: true,
+     secure: configs.node_env === 'production' ? true : false,
+     sameSite: configs.node_env === 'production' ? 'none' : 'strict',
+   });
 
   const data = {
     success: true,
     statusCode: 200,
     message: 'Token updated successfully',
-    token: result,
+    data: result.user,
   };
-  sendResponse<{ token: string }>(res, data);
+  sendResponse<TUser>(res, data);
 });
 
 const logOut = catchAsync(async (req, res) => {

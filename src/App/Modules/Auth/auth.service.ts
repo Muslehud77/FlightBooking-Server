@@ -13,8 +13,26 @@ const createUserIntoDB = async (userData: TUser) => {
   const result = await User.create(userData);
   const user = await User.findById({ _id: result._id }).select(
     '-isDeleted -status -__v',
-  );
-  return user;
+  ) as TUserResponse;
+
+    const payload = {
+      id: user._id,
+      role: user.role,
+    };
+
+    const accessToken = generateToken(
+      payload,
+      configs.jwt_access_secret,
+      configs.jwt_access_expiresIn,
+    );
+
+    const refreshToken = generateToken(
+      payload,
+      configs.jwt_refresh_secret,
+      configs.jwt_refresh_expiresIn,
+    );
+
+  return { user, accessToken, refreshToken };
 };
 
 const signIn = async (userData: TUserSignIn) => {
@@ -57,7 +75,7 @@ const signIn = async (userData: TUserSignIn) => {
 
   const { isDeleted, password, status, ...rest } = user;
 
-  console.log(accessToken);
+ 
   
   return { rest, accessToken, refreshToken };
 };
@@ -82,7 +100,7 @@ const refreshToken = async (refreshToken: string) => {
     configs.jwt_access_expiresIn,
   );
 
-  return token;
+  return {token,user};
 };
 
 export const authServices = {
