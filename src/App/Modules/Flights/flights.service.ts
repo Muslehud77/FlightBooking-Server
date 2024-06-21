@@ -23,6 +23,8 @@ const getAllFlightsFromDB = async (query: Record<string, unknown>) => {
 
   const result = await flightsQuery.modelQuery;
 
+
+
   return result;
 };
 
