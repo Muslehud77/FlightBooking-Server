@@ -113,6 +113,11 @@ npm run prettier:fix
 - `prettier:fix`: Automatically fixes formatting issues.
 - `test`: Placeholder for test script.
 
+## Client Repository
+
+The client-side code for this project can be found in the following repository:
+[Flight Booking Client](https://github.com/Muslehud77/flightBooking-client)
+
 ---
 
 Feel free to reach out if you have any questions or need further assistance. Happy coding!
